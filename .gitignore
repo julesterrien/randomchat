@@ -1,0 +1,9 @@
+node_modules/
+env/
+docs/
+dev/
+build/
+lib/
+npm-debug*
+nohup*
+.DS_Store

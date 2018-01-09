@@ -1,0 +1,12 @@
+.app {
+	text-align: center;
+	height: inherit;
+}
+
+.app h5 {
+	padding-top: 100px;
+}
+
+.app img {
+	width: 40em;
+}
