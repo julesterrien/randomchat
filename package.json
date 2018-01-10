@@ -7,12 +7,15 @@
   "author": "Jules Terrien",
   "license": "ISC",
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "npm run start:client && npm run start:server",
+    "start:client": "node scripts/start.js",
+    "start:server": "nodemon -r @std/esm ./api/index.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
     "lint": "node_modules/.bin/eslint . --ext .jsx --ext .js --max-warnings=0"
   },
   "dependencies": {
+    "@std/esm": "^0.19.1",
     "autoprefixer": "7.1.6",
     "babel-core": "6.26.0",
     "babel-eslint": "7.2.3",
@@ -26,6 +29,7 @@
     "core-js": "^2.5.3",
     "css-loader": "0.28.7",
     "dotenv": "4.0.0",
+    "express": "^4.16.2",
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "1.1.5",
     "fs-extra": "3.0.1",
@@ -66,7 +70,8 @@
     "eslint-loader": "1.9.0",
     "eslint-plugin-import": "2.8.0",
     "eslint-plugin-jsx-a11y": "5.1.1",
-    "eslint-plugin-react": "7.4.0"
+    "eslint-plugin-react": "7.4.0",
+    "nodemon": "^1.14.10"
   },
   "babel": {
     "presets": [
@@ -129,5 +134,10 @@
       "jsx",
       "node"
     ]
+  },
+  "@std/esm": {
+    "await": true,
+    "esm": "js",
+    "cjs": true
   }
 }
