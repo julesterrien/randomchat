@@ -7,7 +7,7 @@
   "author": "Jules Terrien",
   "license": "ISC",
   "scripts": {
-    "start": "npm run start:client && npm run start:server",
+    "start": "npm run start:client",
     "start:client": "node scripts/start.js",
     "start:server": "nodemon -r @std/esm ./api/index.js",
     "build": "node scripts/build.js",

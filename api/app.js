@@ -2,10 +2,19 @@ import express from 'express';
 
 const app = express();
 
+const CORS = (req, res, next) => {
+	res.header('Access-Control-Allow-Origin', req.headers.origin || req.headers.host); // '*'
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+	res.header('Access-Control-Allow-Headers', 'Content-Type');
+	next();
+};
+
+app.use(CORS);
+
 app.use((req, res) => {
-	res.statusCode = 200;
-	res.setHeader('Content-Type', 'text/plain');
-	res.end('Hello World\n');
+	return res.status(200).json({
+		success: 'Hello world',
+	});
 });
 
 export default app;
