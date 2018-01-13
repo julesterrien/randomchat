@@ -1,8 +1,8 @@
 {
-  "name": "JTbase",
+  "name": "Random Chat",
   "version": "0.1.0",
   "private": true,
-  "description": "Customized create-react-app",
+  "description": "Chat with your friends",
   "main": "src/index.js",
   "author": "Jules Terrien",
   "license": "ISC",
@@ -98,7 +98,8 @@
       "object-curly-newline": 0,
       "linebreak-style": 0,
       "no-unused-vars": 1,
-      "no-debugger": 1
+      "no-debugger": 1,
+      "import/first": 0
     }
   },
   "jest": {

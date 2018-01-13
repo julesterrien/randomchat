@@ -1,9 +1,7 @@
 require('@std/esm');
 
-/* eslint-disable */
 import http from 'http';
 import app from './app';
-/* eslint-enable */
 
 const server = http.createServer(app);
 const hostname = '127.0.0.1';
