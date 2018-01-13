@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { func } from 'prop-types';
-import Socket from './Socket';
-import genghis from '../assets/genghis.png';
+import { func, array } from 'prop-types';
 import { getData } from '../actions';
+import Socket from './Socket';
+import Chats from './Chats';
 
 import './App.css';
 
@@ -12,12 +12,12 @@ class App extends Component {
 		this.props.onMount();
 	}
 	render() {
+		const { chats } = this.props;
 		return (
 			<div className="app">
 				<Socket />
 				<h5>Hi there :)</h5>
-				<br />
-				<img src={genghis} alt="Genghis" />
+				<Chats chats={chats} />
 			</div>
 		);
 	}
@@ -25,7 +25,16 @@ class App extends Component {
 
 App.propTypes = {
 	onMount: func.isRequired,
+	chats: array,
 };
+
+App.defaultProps = {
+	chats: [],
+};
+
+const mapState = state => ({
+	chats: state.app.chats,
+});
 
 const mapDispatch = dispatch => ({
 	onMount() {
@@ -33,4 +42,4 @@ const mapDispatch = dispatch => ({
 	},
 });
 
-export default connect(null, mapDispatch)(App);
+export default connect(mapState, mapDispatch)(App);

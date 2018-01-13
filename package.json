@@ -6,7 +6,6 @@
   "main": "src/index.js",
   "author": "Jules Terrien",
   "license": "ISC",
-  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "npm run start:client",
     "start:client": "node scripts/start.js",
