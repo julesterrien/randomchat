@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
+import Socket from './Socket';
 import genghis from '../assets/genghis.png';
 import { getData } from '../actions';
 
@@ -13,6 +14,7 @@ class App extends Component {
 	render() {
 		return (
 			<div className="app">
+				<Socket />
 				<h5>Hi there :)</h5>
 				<br />
 				<img src={genghis} alt="Genghis" />

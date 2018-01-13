@@ -1,7 +1,9 @@
 import express from 'express';
+import router from './router';
 
 const app = express();
 
+// api is on :8080, client is on :3000
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', req.headers.origin || req.headers.host); // '*'
 	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -9,10 +11,6 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.use((req, res) => {
-	return res.status(200).json({
-		success: 'Hello world',
-	});
-});
+app.use('/', router);
 
 export default app;
