@@ -4,7 +4,7 @@ import React from 'react';
 const Chats = ({ chats }) => chats.map((chat, i) => {
 	return (
 		<div key={i}>
-			{chat.handle}
+			{chat.handle}{' '}
 			{chat.message}
 		</div>
 	);

@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
 		console.log('--- chatroom length', chatRoom.length);
 		const otherSocket = chatRoom.find(s => s.id !== socket.id);
 		if (otherSocket) {
-			otherSocket.emit('onchat', msg);
+			otherSocket.emit('chat', msg);
 		}
 	});
 

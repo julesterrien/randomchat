@@ -12,8 +12,3 @@ export const getData = () => (dispatch) => {
 			console.log('Response body:', body);
 		});
 };
-
-export const updateChats = msg => (dispatch, getState) => {
-	const { app: { chats = [] } } = getState();
-	dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
-};
