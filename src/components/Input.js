@@ -4,6 +4,8 @@ import { func, string } from 'prop-types';
 import { update } from 'novux';
 import { emit } from '../actions/socket';
 
+import './Input.css';
+
 class Input extends Component {
 	constructor(props) {
 		super(props);
@@ -22,16 +24,16 @@ class Input extends Component {
 		const { onChange, onSubmit, value } = this.props;
 		return (
 			<div className="input-wrapper">
-				<h5>
-					➜{' '}
+				<div className="centered">
 					<input
 						className="input"
+						placeholder="Type something..."
 						onChange={e => onChange(e.target.value)}
 						value={value}
 						autoFocus
 					/>
-				</h5>
-				<button onClick={() => onSubmit({ key: 'Enter' })}>Send</button>
+					<button className="submit" onClick={() => onSubmit({ key: 'Enter' })}>Send</button>
+				</div>
 			</div>
 		);
 	}

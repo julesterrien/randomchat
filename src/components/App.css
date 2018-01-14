@@ -1,12 +1,13 @@
 .app {
 	text-align: center;
 	height: inherit;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 }
 
-.app h5 {
-	padding-top: 100px;
-}
-
-.app img {
-	width: 40em;
+.centered {
+	display: flex;
+	flex-basis: 50%;
+	justify-content: space-between;
 }

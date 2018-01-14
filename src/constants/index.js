@@ -1,3 +1,3 @@
 export const HANDLES = {
-	default: '@rando',
+	default: 'rando',
 };

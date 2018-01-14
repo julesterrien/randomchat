@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { func, array } from 'prop-types';
-// import { getData } from '../actions';
+import { func, array, string } from 'prop-types';
 import { init as initSocket } from '../actions/socket';
 import Chats from './Chats';
 import Input from './Input';
@@ -13,10 +12,10 @@ class App extends Component {
 		this.props.onMount();
 	}
 	render() {
-		const { chats } = this.props;
+		const { chats, handle } = this.props;
 		return (
 			<div className="app">
-				<Chats chats={chats} />
+				<Chats chats={chats} handle={handle} />
 				<Input />
 			</div>
 		);
@@ -26,20 +25,22 @@ class App extends Component {
 App.propTypes = {
 	onMount: func.isRequired,
 	chats: array,
+	handle: string,
 };
 
 App.defaultProps = {
 	chats: [],
+	handle: '',
 };
 
 const mapState = state => ({
 	chats: state.app.chats,
+	handle: state.app.handle,
 });
 
 const mapDispatch = dispatch => ({
 	onMount() {
 		dispatch(initSocket());
-		// dispatch(getData());
 	},
 });
 

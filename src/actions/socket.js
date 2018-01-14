@@ -18,6 +18,7 @@ export const init = () => (dispatch, getState) => {
 		const msg = {
 			handle: HANDLES.default,
 			message: 'To start, choose a username',
+			timestamp: new Date(),
 		};
 		dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
 	});
@@ -34,6 +35,7 @@ export const init = () => (dispatch, getState) => {
 			const msg = {
 				handle: HANDLES.default,
 				message: 'A new random chatter connected! Say hi',
+				timestamp: new Date(),
 			};
 			dispatch(
 				chain(
@@ -52,6 +54,7 @@ export const init = () => (dispatch, getState) => {
 			const msg = {
 				handle: HANDLES.default,
 				message: 'The other chatter left. You\'ll be notified when a new chatter is online.',
+				timestamp: new Date(),
 			};
 			dispatch(update('app', 'let user know that chat is pending', {
 				chats: [...chats, msg],
@@ -75,24 +78,35 @@ export const init = () => (dispatch, getState) => {
 	});
 };
 
+// 1. ensure that messages are queued until after signin
+// 2. ensure db data is cleaned when a socket disconnects
+// 3. implement slash commands
+// 4. add animations
+// 5. improve skin + helpers (user connected/vs not + diff. bckgrd color per chat..?)
+// 6. improve UX around queue/dequeue
+// 7. add tests
+
 export const emit = () => (dispatch, getState) => {
 	const {
 		app: { handle, chats, isChatting },
 		input: { value },
 	} = getState();
 
+	const msg = { handle: handle || value, message: value, timestamp: new Date() };
+
 	if (!handle) {
 		const chatStatus = isChatting
 			? 'You can now chat to a random chatter. Start typing a message...'
-			: 'You will be notified when another chatter is online. Until then, you can talk to me...';
-		const msg = {
+			: 'I\'ll you know when another chatter is online. Until then, chat with me...';
+		const msg2 = {
 			handle: HANDLES.default,
 			message: `Hi ${value}. ${chatStatus}`,
+			timestamp: new Date(),
 		};
-		dispatch(update('app', 'cache username & save msg', { handle: value, chats: [...chats, msg] }));
+		dispatch(update('app', 'cache username & save msg', { handle: value, chats: [...chats, msg, msg2] }));
+		socket.emit('login');
 	} else {
-		const msg = { handle, message: value };
-		socket.emit('chat', msg);
+		socket.emit('chat', { handle, message: value });
 		dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
 	}
 

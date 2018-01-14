@@ -1,0 +1,22 @@
+.input-wrapper {
+	background: white;
+	display: flex;
+	flex-basis: 5em;
+	justify-content: center;
+	align-items: center;
+	color: black;
+}
+
+.input {
+	width: 100px;
+	flex-grow: 1;
+	outline: none;
+	border: none;
+}
+
+.submit {
+	margin-left: 1em;
+}
+
+.placeholder {
+}

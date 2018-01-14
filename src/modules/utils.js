@@ -10,3 +10,5 @@ export const getUrlParameter = (key) => {
 	const results = regex.exec(location.search); // eslint-disable-line
 	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 };
+
+export const moment = timestamp => timestamp && timestamp.toTimeString().split(' ')[0];
