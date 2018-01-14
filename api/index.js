@@ -39,13 +39,12 @@ io.on('connection', (socket) => {
 		socket.emit('enqueue');
 	}
 
-	const queue = queues[socket.id];
-
 	socket.on('chat', (msg) => {
-		console.log('Chat message received', msg);
+		console.log('Chat received', msg);
 		const otherSocket = chatRoom.find(s => s.id !== socket.id);
+		const otherQueue = otherSocket && queues[otherSocket.id];
 		if (otherSocket && !auth[otherSocket.id]) {
-			queue.push(msg);
+			otherQueue.push(msg);
 		} else if (otherSocket) {
 			otherSocket.emit('chat', msg);
 		}
@@ -53,7 +52,8 @@ io.on('connection', (socket) => {
 
 	socket.on('login', () => {
 		console.log('login', queues);
-		if (queue.length > 0) {
+		const queue = queues[socket.id];
+		if (queue && queue.length > 0) {
 			queue.forEach(queuedMsg => socket.emit('chat', queuedMsg));
 		}
 		auth[socket.id] = true;
@@ -65,6 +65,7 @@ io.on('connection', (socket) => {
 		const i = chatRoom.indexOf(socket);
 		chatRoom.splice(i, 1);
 		if (auth.hasOwnProperty(socket.id)) { delete auth[socket.id]; }
+		if (queues.hasOwnProperty(socket.id)) { delete queues[socket.id]; }
 
 		if (chatRoom.length === 1) {
 			chatRoom[0].emit('pending');

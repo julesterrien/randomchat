@@ -78,22 +78,15 @@ export const init = () => (dispatch, getState) => {
 	});
 };
 
-// 1. ensure that messages are queued until after signin
-// 2. ensure db data is cleaned when a socket disconnects
-// 3. implement slash commands
-// 4. add animations
-// 5. improve skin + helpers (user connected/vs not + diff. bckgrd color per chat..?)
-// 6. improve UX around queue/dequeue
-// 7. add tests
-
 export const emit = () => (dispatch, getState) => {
 	const {
 		app: { handle, chats, isChatting },
 		input: { value },
 	} = getState();
 
-	const msg = { handle: handle || value, message: value, timestamp: new Date() };
+	if (!value) return;
 
+	const msg = { handle: handle || value, message: value, timestamp: new Date() };
 	if (!handle) {
 		const chatStatus = isChatting
 			? 'You can now chat to a random chatter. Start typing a message...'
