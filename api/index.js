@@ -15,7 +15,10 @@ const io = socketIO(server);
 // message history is not persisted and just passed from one socket/client to the next
 // we could use redis and/or an actual db if we wanted to persist history
 const chatRoom = [];
-const queue = [];
+const auth = {};
+const queues = {
+	user: [],
+};
 
 server.listen(port, hostname, () => {
 	console.log(`Server running on port ${hostname}:${port}`);
@@ -30,17 +33,30 @@ io.on('connection', (socket) => {
 			[...chatRoom, socket].forEach(sckt => sckt.emit('start'));
 		}
 		chatRoom.push(socket);
+		queues[socket.id] = [];
 	} else {
-		queue.push(socket);
+		queues.user.push(socket);
 		socket.emit('enqueue');
 	}
+
+	const queue = queues[socket.id];
 
 	socket.on('chat', (msg) => {
 		console.log('Chat message received', msg);
 		const otherSocket = chatRoom.find(s => s.id !== socket.id);
-		if (otherSocket) {
+		if (otherSocket && !auth[otherSocket.id]) {
+			queue.push(msg);
+		} else if (otherSocket) {
 			otherSocket.emit('chat', msg);
 		}
+	});
+
+	socket.on('login', () => {
+		console.log('login', queues);
+		if (queue.length > 0) {
+			queue.forEach(queuedMsg => socket.emit('chat', queuedMsg));
+		}
+		auth[socket.id] = true;
 	});
 
 	socket.on('disconnect', (reason) => {
@@ -48,13 +64,14 @@ io.on('connection', (socket) => {
 
 		const i = chatRoom.indexOf(socket);
 		chatRoom.splice(i, 1);
+		if (auth.hasOwnProperty(socket.id)) { delete auth[socket.id]; }
 
 		if (chatRoom.length === 1) {
 			chatRoom[0].emit('pending');
 		}
 
-		if (queue.length > 0) {
-			const nextSocket = queue.shift();
+		if (queues.user.length > 0) {
+			const nextSocket = queues.user.shift();
 			nextSocket.emit('dequeue');
 		}
 	});
