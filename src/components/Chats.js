@@ -1,14 +1,14 @@
 import React from 'react';
 
 /* eslint-disable */
-const Chats = ({ chats }) => chats.map((chat, i) => {
-	return (
+const Chats = ({ chats }) => chats.map(({ handle, message }, i) => (
+	message && message.length > 0 && (
 		<div key={i}>
-			{chat.handle}{' '}
-			{chat.message}
+			{handle}{' '}
+			{message}
 		</div>
-	);
-});
+	)
+));
 /* eslint-enable */
 
 export default Chats;
