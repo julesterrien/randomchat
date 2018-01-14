@@ -1,20 +1,16 @@
 import React from 'react';
 import { array, string } from 'prop-types';
+import Moment from 'react-moment';
 import classnames from 'classnames';
-import { moment } from '../modules/utils';
 
 import './Chats.css';
 
-const ChatHeader = ({ handle, timestamp }) => {
-	return <h4>{handle} - {timestamp}</h4>;
-};
+const ChatHeader = ({ handle, timestamp }) => <h4>{handle} - <Moment fromNow>{timestamp}</Moment></h4>;
 
-const ChatBody = ({ message }) => {
-	return <h5>{message}</h5>;
-};
+const ChatBody = ({ message }) => <h5>{message}</h5>;
 
-const Chats = ({ chats, handle: userHandle }) => {
-	return (
+const Chats = ({ chats = [], handle: userHandle }) => {
+	return chats.length > 0 ? (
 		<div className="chats">
 			{
 				chats.map(({ handle, message, timestamp }, i) => (
@@ -23,14 +19,14 @@ const Chats = ({ chats, handle: userHandle }) => {
 							key={i} // eslint-disable-line
 							className={classnames('chat', { right: handle === userHandle })}
 						>
-							<ChatHeader handle={handle} timestamp={moment(timestamp)} />
+							<ChatHeader handle={handle} timestamp={timestamp} />
 							<ChatBody message={message} />
 						</div>
 					)
 				))
 			}
 		</div>
-	);
+	) : <div className="chats" />;
 };
 
 Chats.propTypes = {

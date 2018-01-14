@@ -3,6 +3,7 @@ require('@std/esm');
 import http from 'http';
 import app from './app';
 import socketIO from 'socket.io';
+import BOT from './bot';
 
 const server = http.createServer(app);
 
@@ -27,16 +28,17 @@ server.listen(port, hostname, () => {
 io.on('connection', (socket) => {
 	console.log('api connected via socket', socket.id);
 
+	socket.emit('chat', { ...BOT.intro, timestamp: new Date() });
+
 	if (chatRoom.length < 2) {
-		socket.emit('init');
 		if (chatRoom.length === 1) {
-			[...chatRoom, socket].forEach(sckt => sckt.emit('start'));
+			chatRoom[0].emit('chat', { ...BOT.newChat, timestamp: new Date() });
 		}
 		chatRoom.push(socket);
 		queues[socket.id] = [];
 	} else {
 		queues.user.push(socket);
-		socket.emit('enqueue');
+		socket.emit('chat', { ...BOT.enqueue, timestamp: new Date() });
 	}
 
 	socket.on('chat', (msg) => {
@@ -51,7 +53,16 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('login', () => {
-		console.log('login', queues);
+		console.log('login');
+
+		const otherSocket = chatRoom.find(s => s.id !== socket.id);
+		if (otherSocket && auth[otherSocket.id]) {
+			socket.emit('chat', BOT.startChat);
+		} else {
+			socket.emit('chat', BOT.pendingChat);
+		}
+
+
 		const queue = queues[socket.id];
 		if (queue && queue.length > 0) {
 			queue.forEach(queuedMsg => socket.emit('chat', queuedMsg));
@@ -68,12 +79,12 @@ io.on('connection', (socket) => {
 		if (queues.hasOwnProperty(socket.id)) { delete queues[socket.id]; }
 
 		if (chatRoom.length === 1) {
-			chatRoom[0].emit('pending');
+			chatRoom[0].emit('chat', { ...BOT.endChat, timestamp: new Date() });
 		}
 
 		if (queues.user.length > 0) {
 			const nextSocket = queues.user.shift();
-			nextSocket.emit('dequeue');
+			nextSocket.emit('chat', { ...BOT.dequeue, timestamp: new Date() });
 		}
 	});
 });
