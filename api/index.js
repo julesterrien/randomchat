@@ -31,8 +31,12 @@ io.on('connection', (socket) => {
 	socket.emit('chat', { ...BOT.intro, timestamp: new Date() });
 
 	if (chatRoom.length < 2) {
-		if (chatRoom.length === 1) {
-			chatRoom[0].emit('chat', { ...BOT.newChat, timestamp: new Date() });
+		const otherSocket = chatRoom.find(s => s.id !== socket.id);
+		const msg = { ...BOT.newChat, timestamp: new Date() };
+		if (otherSocket && auth[otherSocket.id]) {
+			chatRoom[0].emit('chat', msg);
+		} else if (otherSocket) {
+			queues[otherSocket.id].push(msg);
 		}
 		chatRoom.push(socket);
 		queues[socket.id] = [];
