@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { func, string } from 'prop-types';
 import { update } from 'novux';
-import { emit } from '../actions';
+import { handleSubmit } from '../actions';
 
 import './Input.css';
 
@@ -59,7 +59,7 @@ const mapDispatch = dispatch => ({
 	},
 	onSubmit({ key }) {
 		if (key && key === 'Enter') {
-			dispatch(emit());
+			dispatch(handleSubmit());
 		}
 	},
 });

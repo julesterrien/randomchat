@@ -1,3 +1,4 @@
-export const HANDLES = {
-	default: 'rando',
+export const COMMANDS = {
+	delay: '/delay',
+	hop: '/hop',
 };
