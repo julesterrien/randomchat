@@ -10,13 +10,11 @@ const socket = io('http://localhost:8080');
  * @returns {function} thunk
  */
 export const init = () => (dispatch, getState) => {
-	socket.on('connect', () => {
-		// get & display number of users connected
-		console.log('connect');
+	socket.on('init', ({ bot }) => {
+		dispatch(update('app', 'Cache bot handle', { botHandle: bot }));
 	});
 
 	socket.on('chat', (msg) => {
-		console.log('newChat', msg);
 		const { app: { chats = [] } } = getState();
 		dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
 	});
@@ -32,7 +30,7 @@ const sendMessage = val => (dispatch, getState) => {
 	const { app: { handle, chats }, input: { value } } = getState();
 	const message = val || value;
 	const msg = { handle, message, timestamp: new Date() };
-	socket.emit('chat', { handle, message });
+	socket.emit('chat', msg);
 	dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
 };
 
@@ -42,7 +40,7 @@ const sendMessage = val => (dispatch, getState) => {
  * @returns {function} thunk
  */
 const handleInput = () => (dispatch, getState) => {
-	const { input: { value } } = getState();
+	const { app: { handle, chats }, input: { value } } = getState();
 
 	if (value && value.startsWith(COMMANDS.delay)) {
 		const args = value.split(' ');
@@ -50,8 +48,9 @@ const handleInput = () => (dispatch, getState) => {
 		const msg = args[2];
 		setTimeout(() => { dispatch(sendMessage(msg)); }, timeout);
 	} else if (value && value.startsWith(COMMANDS.hop)) {
-		// /hop: attempt to repair with another user or wait until another is available.
 		socket.emit('hop');
+		const msg = { handle, message: value, timestamp: new Date() };
+		dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
 	} else {
 		dispatch(sendMessage());
 	}
@@ -69,7 +68,9 @@ export const handleSubmit = () => (dispatch, getState) => {
 
 	if (!value) return;
 
-	if (!handle) {
+	if (value && value.startsWith(COMMANDS.help)) {
+		socket.emit('help');
+	} else if (!handle) {
 		const msg = { handle: value, message: value, timestamp: new Date() };
 		dispatch(update('app', 'cache username', { handle: value, chats: [...chats, msg] }));
 		socket.emit('login');

@@ -3,7 +3,7 @@
 	color: white;
 	min-height: 4rem;
 	display: flex;
-	flex-basis: 5em;
+	flex-basis: 5rem;
 	justify-content: center;
 	align-items: center;
 	bottom: 0;
@@ -23,7 +23,7 @@
 }
 
 .submit {
-	margin-left: 0.5em;
+	margin-left: 0.5rem;
 	background: transparent;
 	color: white;
 	border: none;

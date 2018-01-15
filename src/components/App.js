@@ -12,10 +12,10 @@ class App extends Component {
 		this.props.onMount();
 	}
 	render() {
-		const { chats, handle } = this.props;
+		const { chats, handle, bot } = this.props;
 		return (
 			<div className="app">
-				<Chats chats={chats} handle={handle} />
+				<Chats chats={chats} handle={handle} bot={bot} />
 				<Input />
 			</div>
 		);
@@ -26,16 +26,19 @@ App.propTypes = {
 	onMount: func.isRequired,
 	chats: array,
 	handle: string,
+	bot: string,
 };
 
 App.defaultProps = {
 	chats: [],
 	handle: '',
+	bot: '',
 };
 
 const mapState = state => ({
 	chats: state.app.chats,
 	handle: state.app.handle,
+	bot: state.app.botHandle,
 });
 
 const mapDispatch = dispatch => ({
