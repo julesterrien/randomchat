@@ -23,7 +23,7 @@ class Input extends Component {
 	render() {
 		const { onChange, onSubmit, value } = this.props;
 		return (
-			<div className="input-wrapper">
+			<footer className="input-wrapper">
 				<div className="centered">
 					<input
 						className="input"
@@ -34,7 +34,7 @@ class Input extends Component {
 					/>
 					<button className="submit" onClick={() => onSubmit({ key: 'Enter' })}>Send</button>
 				</div>
-			</div>
+			</footer>
 		);
 	}
 }

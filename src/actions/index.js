@@ -4,6 +4,11 @@ import { COMMANDS } from '../constants';
 
 const socket = io('http://localhost:8080');
 
+/**
+ * init
+ * setup socket listeners
+ * @returns {function} thunk
+ */
 export const init = () => (dispatch, getState) => {
 	socket.on('connect', () => {
 		// get & display number of users connected
@@ -17,6 +22,12 @@ export const init = () => (dispatch, getState) => {
 	});
 };
 
+/**
+ * sendMessage
+ * handle commands (/delay, /hop) and/or emit message
+ * @param {string} val a message
+ * @returns {function} thunk
+ */
 const sendMessage = val => (dispatch, getState) => {
 	const { app: { handle, chats }, input: { value } } = getState();
 	const message = val || value;
@@ -25,6 +36,11 @@ const sendMessage = val => (dispatch, getState) => {
 	dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
 };
 
+/**
+ * handleInput
+ * handle commands and/or send message
+ * @returns {function} thunk
+ */
 const handleInput = () => (dispatch, getState) => {
 	const { input: { value } } = getState();
 
@@ -35,11 +51,19 @@ const handleInput = () => (dispatch, getState) => {
 		setTimeout(() => { dispatch(sendMessage(msg)); }, timeout);
 	} else if (value && value.startsWith(COMMANDS.hop)) {
 		// /hop: attempt to repair with another user or wait until another is available.
+		socket.emit('hop');
 	} else {
 		dispatch(sendMessage());
 	}
 };
 
+/**
+ * handleSubmit
+ * 1. return if no input
+ * 2. login user if handle is undefined || handleInput
+ * 3. clear input value
+ * @returns {function} thunk
+ */
 export const handleSubmit = () => (dispatch, getState) => {
 	const { app: { handle, chats }, input: { value } } = getState();
 

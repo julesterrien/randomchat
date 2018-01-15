@@ -26,11 +26,12 @@ server.listen(port, hostname, () => {
 });
 
 io.on('connection', (socket) => {
-	console.log('api connected via socket', socket.id);
+	// console.log('api connected via socket', socket.id);
 
 	socket.emit('chat', { ...BOT.intro, timestamp: new Date() });
 
 	if (chatRoom.length < 2) {
+		// if there's still room in the chatroom, start a chat:
 		const otherSocket = chatRoom.find(s => s.id !== socket.id);
 		const msg = { ...BOT.newChat, timestamp: new Date() };
 		if (otherSocket && auth[otherSocket.id]) {
@@ -41,25 +42,25 @@ io.on('connection', (socket) => {
 		chatRoom.push(socket);
 		queues[socket.id] = [];
 	} else {
+		// else, queue this socket:
 		queues.user.push(socket);
 	}
 
-	console.log('----chatroom', chatRoom.length);
-
 	socket.on('chat', (msg) => {
-		console.log('Chat received', msg);
+		// console.log('Chat received', msg);
 		const otherSocket = chatRoom.find(s => s.id !== socket.id);
 		const msgQueue = otherSocket && queues[otherSocket.id];
 		if (otherSocket && !auth[otherSocket.id]) {
+			// if other socket in chatroom has authed, send message
 			msgQueue.push(msg);
 		} else if (otherSocket) {
+			// else queue message
 			otherSocket.emit('chat', msg);
 		}
 	});
 
 	socket.on('login', () => {
-		console.log('login');
-
+		// console.log('login');
 		const otherSocket = chatRoom.find(s => s.id !== socket.id);
 		const pairIsLoggedIn = otherSocket && auth[otherSocket.id];
 		if (pairIsLoggedIn && !queues.user.includes(socket)) {
@@ -68,16 +69,17 @@ io.on('connection', (socket) => {
 			socket.emit('chat', BOT.enqueue);
 		}
 
+		// send any queued messages for this socket
 		const queue = queues[socket.id];
 		if (queue && queue.length > 0) {
 			queue.forEach(queuedMsg => socket.emit('chat', queuedMsg));
 		}
+
 		auth[socket.id] = true;
 	});
 
-	socket.on('disconnect', (reason) => {
-		console.log('user disconnected', reason);
-
+	socket.on('disconnect', () => {
+		// console.log('user disconnected', reason);
 		const i = chatRoom.indexOf(socket);
 		chatRoom.splice(i, 1);
 		if (auth.hasOwnProperty(socket.id)) { delete auth[socket.id]; }
@@ -87,6 +89,7 @@ io.on('connection', (socket) => {
 			chatRoom[0].emit('chat', { ...BOT.endChat, timestamp: new Date() });
 		}
 
+		// have the next queued socket start a chat
 		if (queues.user.length > 0) {
 			const nextSocket = queues.user.shift();
 			nextSocket.emit('chat', { ...BOT.dequeue, timestamp: new Date() });

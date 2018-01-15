@@ -1,5 +1,5 @@
 import React from 'react';
-import { array, string } from 'prop-types';
+import { array, string, bool } from 'prop-types';
 import Moment from 'react-moment';
 import classnames from 'classnames';
 
@@ -16,17 +16,27 @@ const ChatHeader = ({ handle, timestamp, isCurrentUser }) => {
 	);
 };
 
+ChatHeader.propTypes = {
+	handle: string.isRequired,
+	timestamp: string.isRequired,
+	isCurrentUser: bool.isRequired,
+};
+
 const ChatBody = ({ message }) => <p>{message}</p>;
 
+ChatBody.propTypes = {
+	message: string.isRequired,
+};
+
 const Chats = ({ chats = [], handle: userHandle }) => {
-	return chats.length > 0 ? (
-		<div className="chats">
+	return (
+		<main className="chats">
 			{
-				chats.map(({ handle, message, timestamp }, i) => {
+				chats.map(({ handle, message, timestamp }) => {
 					const isCurrentUser = handle === userHandle;
 					return message && message.length > 0 && (
 						<div
-							key={i} // eslint-disable-line
+							key={timestamp}
 							className={classnames('chat', { right: isCurrentUser })}
 						>
 							<ChatHeader handle={handle} timestamp={timestamp} isCurrentUser={isCurrentUser} />
@@ -35,8 +45,8 @@ const Chats = ({ chats = [], handle: userHandle }) => {
 					);
 				})
 			}
-		</div>
-	) : <div className="chats" />;
+		</main>
+	);
 };
 
 Chats.propTypes = {
