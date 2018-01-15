@@ -11,6 +11,12 @@ const roomMap = {};			// O(1) lookup of the room assigned to a given socket
 const auth = {}; 				// maps socketIDs to bool
 const msgQueues = {}; 	// maps socketIDs to array of queued messages for this socket
 
+/**
+ * onInit
+ * assigns connected socket to room or queue it for later
+ * send intro messages to client
+ * @param {object} s1 a socket object
+ */
 export const onInit = (s1) => {
 	const room = rooms.find(rm => rm.length < 2);
 
@@ -41,6 +47,12 @@ export const onInit = (s1) => {
 	s1.emit('chat', { ...BOT.intro, timestamp: new Date() });
 };
 
+/**
+ * onChat
+ * send message to other socket or enqueue msg for later
+ * @param {object} s1 a socket object
+ * @param {string} msg a message to transfer
+ */
 export const onChat = (s1, msg) => {
 	const roomID = roomMap[s1.id];
 	const s2 = rooms[roomID].find(s => s.id !== s1.id);
@@ -54,6 +66,13 @@ export const onChat = (s1, msg) => {
 	}
 };
 
+/**
+ * onLogin
+ * login socket
+ * start chat or let client know he's queued for later
+ * handle messages queued for this socket at this point
+ * @param {object} s1 a socket object
+ */
 export const onLogin = (s1) => {
 	// mark s1 as logged in
 	auth[s1.id] = true;
@@ -75,7 +94,13 @@ export const onLogin = (s1) => {
 	}
 };
 
-
+/**
+ * onDisconnect
+ * remove any data linked to the disconnecting socket
+ * if that socket was in a room with another socket, ensure that socket is paired
+ * for another chat or queued for later
+ * @param {object} s1 a socket object
+ */
 export const onDisconnect = (s1) => {
 	// remove s1 from its chat room
 	const roomID = roomMap[s1.id];
@@ -107,6 +132,13 @@ export const onDisconnect = (s1) => {
 	}
 };
 
+/**
+ * onHop
+ * try to pair socket with another socket or queue for later
+ * if this socket was initially paired with another, ensure this second socket
+ * is paired for another chat, or queued for later as well
+ * @param {object} s1 a socket object
+ */
 export const onHop = (s1) => {
 	const roomID = roomMap[s1.id];
 
@@ -146,6 +178,11 @@ export const onHop = (s1) => {
 	hop(s2);
 };
 
+/**
+ * onHelp
+ * send client help msg
+ * @param {object} s1 a socket object
+ */
 export const onHelp = (s1) => {
 	s1.emit('chat', { ...BOT.help, timestamp: new Date() });
 };
