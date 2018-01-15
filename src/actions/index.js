@@ -2,14 +2,14 @@ import io from 'socket.io-client';
 import { update } from 'novux';
 import { COMMANDS } from '../constants';
 
-const socket = io('http://localhost:8080');
+const sckt = io('http://localhost:8080');
 
 /**
  * init
  * setup socket listeners
  * @returns {function} thunk
  */
-export const init = () => (dispatch, getState) => {
+export const init = ({ socket = sckt } = {}) => (dispatch, getState) => {
 	socket.on('init', ({ bot }) => {
 		dispatch(update('app', 'Cache bot handle', { botHandle: bot }));
 	});
@@ -26,9 +26,9 @@ export const init = () => (dispatch, getState) => {
  * @param {string} val a message
  * @returns {function} thunk
  */
-const sendMessage = val => (dispatch, getState) => {
-	const { app: { handle, chats }, input: { value } } = getState();
-	const message = val || value;
+export const sendMessage = ({ value, socket = sckt } = {}) => (dispatch, getState) => {
+	const { app: { handle, chats }, input: { value: inputValue } } = getState();
+	const message = value || inputValue;
 	const msg = { handle, message, timestamp: new Date() };
 	socket.emit('chat', msg);
 	dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
@@ -39,20 +39,20 @@ const sendMessage = val => (dispatch, getState) => {
  * handle commands and/or send message
  * @returns {function} thunk
  */
-const handleInput = () => (dispatch, getState) => {
+export const handleInput = ({ socket = sckt } = {}) => (dispatch, getState) => {
 	const { app: { handle, chats }, input: { value } } = getState();
 
 	if (value && value.startsWith(COMMANDS.delay)) {
 		const args = value.split(' ');
 		const timeout = args[1] || 0;
 		const msg = args[2];
-		setTimeout(() => { dispatch(sendMessage(msg)); }, timeout);
+		setTimeout(() => { dispatch(sendMessage({ value: msg, socket })); }, timeout);
 	} else if (value && value.startsWith(COMMANDS.hop)) {
 		socket.emit('hop');
 		const msg = { handle, message: value, timestamp: new Date() };
 		dispatch(update('app', 'Update chats', { chats: [...chats, msg] }));
 	} else {
-		dispatch(sendMessage());
+		dispatch(sendMessage({ socket }));
 	}
 };
 
@@ -63,7 +63,7 @@ const handleInput = () => (dispatch, getState) => {
  * 3. clear input value
  * @returns {function} thunk
  */
-export const handleSubmit = () => (dispatch, getState) => {
+export const handleSubmit = ({ socket = sckt } = {}) => (dispatch, getState) => {
 	const { app: { handle, chats }, input: { value } } = getState();
 
 	if (!value) return;
@@ -75,7 +75,7 @@ export const handleSubmit = () => (dispatch, getState) => {
 		dispatch(update('app', 'cache username', { handle: value, chats: [...chats, msg] }));
 		socket.emit('login');
 	} else {
-		dispatch(handleInput());
+		dispatch(handleInput({ socket }));
 	}
 
 	dispatch(update('input', 'Clear input', { value: '' }));

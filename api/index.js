@@ -24,10 +24,10 @@ server.listen(port, hostname, () => {
 });
 
 io.on('connection', (s1) => {
-	onInit(s1);
-	s1.on('chat', msg => onChat(s1, msg));
-	s1.on('login', () => onLogin(s1));
-	s1.on('disconnect', () => onDisconnect(s1));
-	s1.on('hop', () => onHop(s1));
-	s1.on('help', () => onHelp(s1));
+	onInit({ s1 });
+	s1.on('chat', msg => onChat({ s1, msg }));
+	s1.on('login', () => onLogin({ s1 }));
+	s1.on('disconnect', () => onDisconnect({ s1 }));
+	s1.on('hop', () => onHop({ s1 }));
+	s1.on('help', () => onHelp({ s1 }));
 });

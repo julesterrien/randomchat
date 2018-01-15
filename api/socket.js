@@ -6,10 +6,10 @@ import BOT from './bot';
  * It's not designed to be efficent. One improvement here could be to move from arrays to queues
  * We're also not persisting data. An improvement here could be to add Redis or an actual db
  */
-const rooms = [[]];			// list of chatrooms: [[socket1, socket2]]
-const roomMap = {};			// O(1) lookup of the room assigned to a given socket
-const auth = {}; 				// maps socketIDs to bool
-const msgQueues = {}; 	// maps socketIDs to array of queued messages for this socket
+const ROOMS = [[]];			// list of chatrooms: [[socket1, socket2]]
+const ROOM_MAP = {};			// O(1) lookup of the room assigned to a given socket
+const AUTH = {}; 				// maps socketIDs to bool
+const MSG_QUEUES = {}; 	// maps socketIDs to array of queued messages for this socket
 
 /**
  * onInit
@@ -17,8 +17,16 @@ const msgQueues = {}; 	// maps socketIDs to array of queued messages for this so
  * send intro messages to client
  * @param {object} s1 a socket object
  */
-export const onInit = (s1) => {
+export const onInit = ({
+	s1,
+	rooms = ROOMS,
+	roomMap = ROOM_MAP,
+	auth = AUTH,
+	msgQueues = MSG_QUEUES,
+} = {}) => {
 	const room = rooms.find(rm => rm.length < 2);
+
+	console.log('12', rooms);
 
 	if (room) {
 		// notify client
@@ -53,7 +61,14 @@ export const onInit = (s1) => {
  * @param {object} s1 a socket object
  * @param {string} msg a message to transfer
  */
-export const onChat = (s1, msg) => {
+export const onChat = ({
+	s1,
+	msg,
+	rooms = ROOMS,
+	roomMap = ROOM_MAP,
+	auth = AUTH,
+	msgQueues = MSG_QUEUES,
+}) => {
 	const roomID = roomMap[s1.id];
 	const s2 = rooms[roomID].find(s => s.id !== s1.id);
 	if (s2 && auth[s2.id]) {
@@ -73,7 +88,13 @@ export const onChat = (s1, msg) => {
  * handle messages queued for this socket at this point
  * @param {object} s1 a socket object
  */
-export const onLogin = (s1) => {
+export const onLogin = ({
+	s1,
+	rooms = ROOMS,
+	roomMap = ROOM_MAP,
+	auth = AUTH,
+	msgQueues = MSG_QUEUES,
+}) => {
 	// mark s1 as logged in
 	auth[s1.id] = true;
 
@@ -101,7 +122,13 @@ export const onLogin = (s1) => {
  * for another chat or queued for later
  * @param {object} s1 a socket object
  */
-export const onDisconnect = (s1) => {
+export const onDisconnect = ({
+	s1,
+	rooms = ROOMS,
+	roomMap = ROOM_MAP,
+	auth = AUTH,
+	msgQueues = MSG_QUEUES,
+}) => {
 	// remove s1 from its chat room
 	const roomID = roomMap[s1.id];
 	const i = rooms[roomID].indexOf(s1);
@@ -139,7 +166,11 @@ export const onDisconnect = (s1) => {
  * is paired for another chat, or queued for later as well
  * @param {object} s1 a socket object
  */
-export const onHop = (s1) => {
+export const onHop = ({
+	s1,
+	rooms = ROOMS,
+	roomMap = ROOM_MAP,
+}) => {
 	const roomID = roomMap[s1.id];
 
 	// do nothing as s1 is already the next in queue
@@ -183,6 +214,6 @@ export const onHop = (s1) => {
  * send client help msg
  * @param {object} s1 a socket object
  */
-export const onHelp = (s1) => {
+export const onHelp = ({ s1 }) => {
 	s1.emit('chat', { ...BOT.help, timestamp: new Date() });
 };
