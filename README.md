@@ -17,7 +17,12 @@ Install all the things
 $ npm install
 ```
 
-Start a server
+Start WebpackDevServer to serve frontend bundle
 ```
 $ npm start
+```
+
+Start api server to serve backend bundle
+```
+$ npm run start:server
 ```
