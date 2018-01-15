@@ -12,9 +12,14 @@ const port = 8080;
 
 const io = socketIO(server);
 
-// minimal in memory DB used for MVP
-const rooms = [[]];			// could use socketsIO's room feature but preferred custom handling
-const roomMap = {};			// O(1) lookup of the room for a given socket
+/**
+ * NOTE:
+ * This is a minimal in memory DB used for MVP
+ * It's not designed to be efficent. One improvement here could be to move from arrays to queues
+ * We're also not persisting data. An improvement here could be to add Redis or an actual db
+ */
+const rooms = [[]];			// list of chatrooms: [[socket1, socket2]]
+const roomMap = {};			// O(1) lookup of the room assigned to a given socket
 const auth = {}; 				// maps socketIDs to bool
 const msgQueues = {}; 	// maps socketIDs to array of queued messages for this socket
 
@@ -24,6 +29,7 @@ server.listen(port, hostname, () => {
 
 io.on('connection', (s1) => {
 	const room = rooms.find(rm => rm.length < 2);
+
 	if (room) {
 		// notify client
 		const s2 = room[0];
@@ -40,7 +46,7 @@ io.on('connection', (s1) => {
 		const roomID = rooms.indexOf(room);
 		roomMap[s1.id] = roomID;
 	} else {
-		// add s1 to a new room
+		// add s1 to a new room and wait for next available socket
 		rooms.push([s1]);
 		roomMap[s1.id] = rooms.length - 1;
 	}
@@ -53,12 +59,12 @@ io.on('connection', (s1) => {
 	s1.on('chat', (msg) => {
 		const roomID = roomMap[s1.id];
 		const s2 = rooms[roomID].find(s => s.id !== s1.id);
-		const msgQueue = s2 && msgQueues[s2.id];
 		if (s2 && auth[s2.id]) {
 			// if s1 has authed, transfer message
 			s2.emit('chat', msg);
 		} else if (s2) {
 			// else queue message
+			const msgQueue = s2 && msgQueues[s2.id];
 			msgQueue.push(msg);
 		}
 	});
@@ -116,54 +122,42 @@ io.on('connection', (s1) => {
 	});
 
 	s1.on('hop', () => {
-		// remove s1 from its chat room
 		const roomID = roomMap[s1.id];
-		if (rooms[roomID].length === 1) {
-			// do nothing as s1 is already the next in queue
-			return;
-		}
 
-		// remove s1 from its chat room
-		const i = rooms[roomID].indexOf(s1);
-		rooms[roomID].splice(i, 1);
+		// do nothing as s1 is already the next in queue
+		if (rooms[roomID].length === 1) return;
 
-		// tell s2 the chat has ended
-		const s2 = rooms[roomID][0];
+		// get the other socket possibly in s1's room
+		const s2 = rooms[roomID].find(sckt => sckt.id !== s1.id);
+
+		// delete the room. not super efficient but OK for MVP
+		rooms.splice(roomID, 1);
+
+		// match a socket with a pending socket or enqueue it
+		const hop = (socket) => {
+			const lastRoom = rooms[rooms.length - 1];
+			if (lastRoom.length === 1) {
+				// reconnect socket with a pending socket
+				const temp = lastRoom[0];
+				lastRoom.push(socket);
+				lastRoom.forEach((sckt) => { roomMap[sckt.id] = rooms.length - 1; });
+				// notify clients
+				temp.emit('chat', { ...BOT.dequeue, timestamp: new Date() });
+				socket.emit('chat', { ...BOT.newChat, timestamp: new Date() });
+			} else if (lastRoom.length >= 2) {
+				// enqueue socket
+				rooms.push([socket]);
+				roomMap[socket.id] = rooms.length - 1;
+				socket.emit('chat', { ...BOT.enqueue, timestamp: new Date() });
+			}
+		};
+
+		// handle s1
+		hop(s1);
+
+		// handle s2
 		s2.emit('chat', { ...BOT.endChat, timestamp: new Date() });
-
-		// figure out if there's anybody else we can match with s2
-		const lastRoom = rooms[rooms.length - 1];
-		if (lastRoom.length === 1) {
-			// there's a socket pending. connect it to s2's chat room
-			rooms[roomID].push(lastRoom[0]);
-			roomMap[lastRoom[0].id] = roomID;
-			rooms.pop();
-			// notify clients that they can chat
-			lastRoom[0].emit('chat', { ...BOT.dequeue, timestamp: new Date() });
-			s2.emit('chat', { ...BOT.newChat, timestamp: new Date() });
-		} else {
-			// enqueue s2
-			rooms.splice(roomID, 1);
-			rooms.push([s2]);
-			roomMap[s2.id] = rooms.length - 1;
-			s2.emit('chat', { ...BOT.enqueue, timestamp: new Date() });
-		}
-
-		// reconnect s1 with a pending socket or enqueue s1
-		const newLastRoom = rooms[rooms.length - 1];
-		if (newLastRoom.length === 1) {
-			// there's a socket pending a chat (it could be s2...)
-			const temp = newLastRoom[0];
-			newLastRoom.push(s1);
-			temp.emit('chat', { ...BOT.dequeue, timestamp: new Date() });
-			s1.emit('chat', { ...BOT.newChat, timestamp: new Date() });
-		} else {
-			// enqueue s1
-			rooms.splice(roomID, 1);
-			rooms.push([s1]);
-			s1.emit('chat', { ...BOT.enqueue, timestamp: new Date() });
-		}
-		roomMap[s1.id] = rooms.length - 1;
+		hop(s2);
 	});
 
 	s1.on('help', () => {
