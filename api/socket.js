@@ -26,8 +26,6 @@ export const onInit = ({
 } = {}) => {
 	const room = rooms.find(rm => rm.length < 2);
 
-	console.log('12', rooms);
-
 	if (room) {
 		// notify client
 		const s2 = room[0];
@@ -69,6 +67,7 @@ export const onChat = ({
 	auth = AUTH,
 	msgQueues = MSG_QUEUES,
 }) => {
+	console.log(rooms);
 	const roomID = roomMap[s1.id];
 	const s2 = rooms[roomID].find(s => s.id !== s1.id);
 	if (s2 && auth[s2.id]) {
