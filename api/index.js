@@ -38,15 +38,16 @@ io.on('connection', (socket) => {
 		queues[socket.id] = [];
 	} else {
 		queues.user.push(socket);
-		socket.emit('chat', { ...BOT.enqueue, timestamp: new Date() });
 	}
+
+	console.log('----chatroom', chatRoom.length);
 
 	socket.on('chat', (msg) => {
 		console.log('Chat received', msg);
 		const otherSocket = chatRoom.find(s => s.id !== socket.id);
-		const otherQueue = otherSocket && queues[otherSocket.id];
+		const msgQueue = otherSocket && queues[otherSocket.id];
 		if (otherSocket && !auth[otherSocket.id]) {
-			otherQueue.push(msg);
+			msgQueue.push(msg);
 		} else if (otherSocket) {
 			otherSocket.emit('chat', msg);
 		}
@@ -56,12 +57,12 @@ io.on('connection', (socket) => {
 		console.log('login');
 
 		const otherSocket = chatRoom.find(s => s.id !== socket.id);
-		if (otherSocket && auth[otherSocket.id]) {
+		const pairIsLoggedIn = otherSocket && auth[otherSocket.id];
+		if (pairIsLoggedIn && !queues.user.includes(socket)) {
 			socket.emit('chat', BOT.startChat);
 		} else {
-			socket.emit('chat', BOT.pendingChat);
+			socket.emit('chat', BOT.enqueue);
 		}
-
 
 		const queue = queues[socket.id];
 		if (queue && queue.length > 0) {

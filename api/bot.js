@@ -1,8 +1,8 @@
-const handle = '@rando';
+const handle = 'rando';
 const BOT = {
 	intro: {
 		handle,
-		message: 'To start, choose a username',
+		message: 'Welcome to RandomChat! Hi I\'m rando, a simple bot here to help. To start, type a username...',
 	},
 	newChat: {
 		handle,
@@ -12,17 +12,13 @@ const BOT = {
 		handle,
 		message: 'You can now chat to a random chatter. Start typing a message...',
 	},
-	pendingChat: {
-		handle,
-		message: 'I\'ll you know when another chatter is online. Until then, chat with me...',
-	},
 	endChat: {
 		handle,
 		message: 'The other chatter left. You\'ll be notified when a new chatter is online.',
 	},
 	enqueue: {
 		handle,
-		message: 'You have been placed in a queue',
+		message: 'I\'ll you know when another chatter is online. Until then, chat with me...',
 	},
 	dequeue: {
 		handle,

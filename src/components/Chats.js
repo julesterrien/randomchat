@@ -5,25 +5,35 @@ import classnames from 'classnames';
 
 import './Chats.css';
 
-const ChatHeader = ({ handle, timestamp }) => <h4>{handle} - <Moment fromNow>{timestamp}</Moment></h4>;
+const BOT = 'rando';
 
-const ChatBody = ({ message }) => <h5>{message}</h5>;
+const ChatHeader = ({ handle, timestamp, isCurrentUser }) => {
+	return (
+		<h5 className={classnames('chat-header', { bot: handle.startsWith(BOT), self: isCurrentUser })}>
+			{handle}{' '}
+			<Moment fromNow className="date">{timestamp}</Moment>
+		</h5>
+	);
+};
+
+const ChatBody = ({ message }) => <p>{message}</p>;
 
 const Chats = ({ chats = [], handle: userHandle }) => {
 	return chats.length > 0 ? (
 		<div className="chats">
 			{
-				chats.map(({ handle, message, timestamp }, i) => (
-					message && message.length > 0 && (
+				chats.map(({ handle, message, timestamp }, i) => {
+					const isCurrentUser = handle === userHandle;
+					return message && message.length > 0 && (
 						<div
 							key={i} // eslint-disable-line
-							className={classnames('chat', { right: handle === userHandle })}
+							className={classnames('chat', { right: isCurrentUser })}
 						>
-							<ChatHeader handle={handle} timestamp={timestamp} />
+							<ChatHeader handle={handle} timestamp={timestamp} isCurrentUser={isCurrentUser} />
 							<ChatBody message={message} />
 						</div>
-					)
-				))
+					);
+				})
 			}
 		</div>
 	) : <div className="chats" />;

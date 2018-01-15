@@ -1,10 +1,10 @@
 .input-wrapper {
-	background: white;
+	background: rgb(33, 37, 43);
 	display: flex;
 	flex-basis: 5em;
 	justify-content: center;
 	align-items: center;
-	color: black;
+	color: white;
 }
 
 .input {
@@ -12,11 +12,21 @@
 	flex-grow: 1;
 	outline: none;
 	border: none;
+	background: inherit;
+	font-size: inherit;
+	color: white;
 }
 
 .submit {
-	margin-left: 1em;
+	margin-left: 0.5em;
+	background: transparent;
+	color: white;
+	border: none;
+	cursor: pointer;
+	outline: none;
+	padding:0;
 }
 
-.placeholder {
+.submit:active {
+	opacity: 0.3;
 }
