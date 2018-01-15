@@ -3,7 +3,7 @@ const BOT = {
 	handle,
 	intro: {
 		handle,
-		message: 'Welcome to RandomChat! Hi I\'m rando, a simple bot here to help. To start, type a username or "/help"',
+		message: 'Welcome to RandomChat! I\'m rando, a simple bot here to help. To start, type a username or "/help"',
 	},
 	help: {
 		handle,
