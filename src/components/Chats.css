@@ -1,8 +1,5 @@
 .chats {
-	flex-direction: column;
-	justify-content: flex-start;
 	width: 50%;
-  display: flex;
 	align-self: center;
 	text-align: left;
 	padding-top: 1rem;
