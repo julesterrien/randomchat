@@ -26,3 +26,8 @@ Start api server to serve backend bundle
 ```
 $ npm run start:server
 ```
+
+Tests
+```
+$ npm run test
+```
