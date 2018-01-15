@@ -1,12 +1,17 @@
 const handle = 'rando';
 const BOT = {
+	handle,
 	intro: {
 		handle,
-		message: 'Welcome to RandomChat! Hi I\'m rando, a simple bot here to help. To start, type a username...',
+		message: 'Welcome to RandomChat! Hi I\'m rando, a simple bot here to help. To start, type a username or "/help"',
+	},
+	help: {
+		handle,
+		message: 'You can type of several commands such as "/delay [time in ms] [message]" to delay a message or "/hop" to switch chatter. If you haven\'t already chosen a username, type one now...',
 	},
 	newChat: {
 		handle,
-		message: 'A new random chatter connected! Say hi',
+		message: 'A new random chatter connected! Say hi :)',
 	},
 	startChat: {
 		handle,
