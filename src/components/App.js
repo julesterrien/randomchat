@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { func, array, string } from 'prop-types';
-import { init as initSocket } from '../actions/socket';
+import { init as initSocket } from '../actions';
 import Chats from './Chats';
 import Input from './Input';
 

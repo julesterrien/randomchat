@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { func, string } from 'prop-types';
 import { update } from 'novux';
-import { emit } from '../actions/socket';
+import { emit } from '../actions';
 
 import './Input.css';
 
